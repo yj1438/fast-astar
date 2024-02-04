@@ -1,8 +1,5 @@
-/dev/
-/node_modules/
-/.vscode/
-/.rpt2_cache/
+node_modules
+dist
+types
 .vscode
-.rpt2_cache
 .DS_Store
-project.config.json
