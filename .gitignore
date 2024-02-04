@@ -1,8 +1,7 @@
-/dev/
-/node_modules/
-/.vscode/
-/.rpt2_cache/
+node_modules
+dist
+types
+pnpm-lock.yaml
+tsconfig.tsbuildinfo
 .vscode
-.rpt2_cache
 .DS_Store
-project.config.json

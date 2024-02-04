@@ -1,4 +1,4 @@
-const obj = require('./src/index'),
+const obj = require('../dist/index'),
     Grid = obj.Grid,
     Astar = obj.Astar;
 
@@ -13,7 +13,7 @@ let grid = new Grid({
 
 // Add obstacles to the grid
 [[5,2],[5,3],[5,4]].forEach(item => {
-    grid.set(item,'value',1);    // Values greater than 0 are obstacles
+    grid.set(item,'type',1);    // Values greater than 0 are obstacles
 });
 
 // Pass the grid as a parameter to the Astar object
