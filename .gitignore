@@ -1,6 +1,7 @@
 node_modules
 dist
 types
+pnpm-lock.yaml
 tsconfig.tsbuildinfo
 .vscode
 .DS_Store
