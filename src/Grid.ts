@@ -46,15 +46,15 @@ export class Node {
  * 网格地图对象
  */
 export class Grid {
-    col: number;
-    row: number;
-    grid: Node[][];
+    col: number; // 列，即宽
+    row: number; // 行，即高
+    data: Node[][];
 
     constructor(obj: { col: number, row: number, render?: Function }) {
         const _ts = this;
         _ts.col = obj.col;      // 列，即宽
         _ts.row = obj.row;      // 行，即高
-        _ts.grid = _ts.createGrid(obj.col, obj.row, obj.render);
+        _ts.data = _ts.createGrid(obj.col, obj.row, obj.render);
     }
 
     /**
@@ -63,7 +63,7 @@ export class Grid {
      * @return {spot} 当前位置的网格点
      */
     get(xy: Point) {
-        let row = this.grid[xy[1]];
+        let row = this.data[xy[1]];
         return row ? row[xy[0]] : undefined;
     }
 
