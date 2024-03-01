@@ -4,29 +4,29 @@ import { Point } from './type';
 const vector2ToKey = (v: Point) => v.toString();
 const keyToVector2 = (k: string) => k.split(',').map(Number);
 
+export type AstarOptions = {
+    onlyRightAngle: boolean,
+    optimalResult: boolean
+}
+
 /**
  * A*寻路算法
  */
 export class Astar {
     grid: Grid;
-    openList: Map<string, boolean>;
-    closeList: Map<string, boolean>;
-    searchOption: {
-        onlyRightAngle: boolean,
-        optimalResult: boolean,
-    } = {
-        onlyRightAngle: false,
+    searchOption: AstarOptions = {
+        onlyRightAngle: true,
         optimalResult: true
     };
     // current: any;
     start: Point;
     end: Point;
+    _openList: Map<string, boolean>;
+    _closeList: Map<string, boolean>;
 
-    constructor(grid: Grid) {
-        this.grid = grid;                                                                            // 保存传入地图网格
-        this.openList = new Map();                                                                   // 开启列表
-        this.closeList = new Map();                                                                  // 关闭列表（存放不需要再次检查的节点）
-        // this.current;                                                                                // 保存当前正在寻找的节点       
+    constructor(grid: Grid, option?: AstarOptions) {
+        this.grid = grid;                                                                   // 保存传入地图网格
+        this.searchOption = Object.assign({}, this.searchOption, option || {});
     }
 
     /**
@@ -35,8 +35,10 @@ export class Astar {
      * @param  {Point} end <必填>，结束位置（[x,y]）
      * @return {array}  返回寻找到的路径
      */
-    search(start: Point, end: Point, option?: { onlyRightAngle: boolean, optimalResult: boolean }) {
-        const _option = Object.assign({}, this.searchOption, option || {});
+    search(start: Point, end: Point) {
+
+        this._openList = new Map();                                                                   // 开启列表
+        this._closeList = new Map(); 
 
         this.start = start; // 记录开始点
         this.end = end; // 记录结束点
@@ -55,9 +57,11 @@ export class Astar {
         endNode.tag = 'end';
 
         // 将起点加入到开启列表
-        this.openList.set(vector2ToKey(start), true);
+        this._openList.set(vector2ToKey(start), true);
         let result,
             isContinue = true;                                                                      // 标记是否继续查找节点
+
+        console.log('开始寻路', start, end);
 
         // 定义搜索方法并从起点开始寻找
         const searchFn = (p: Point): void => {
@@ -90,8 +94,8 @@ export class Astar {
                     const h = this.h(_p, this.end);
                     const f = this.f(_p);
                     // 如果网格不存在开启列表，则加入到开启列表并把选中的新方格作为父节点及计算其g、f、h值
-                    if (!this.openList.get(itemKey)) {
-                        this.openList.set(itemKey, true);
+                    if (!this._openList.get(itemKey)) {
+                        this._openList.set(itemKey, true);
                         _node.g = g;
                         _node.h = h;
                         _node.f = f;
@@ -112,8 +116,8 @@ export class Astar {
                 };
                 // 从开启列表中删除点A并加入到关闭列表
                 let nodeKey = vector2ToKey(p);
-                this.openList.delete(nodeKey);
-                this.closeList.set(nodeKey, true);
+                this._openList.delete(nodeKey);
+                this._closeList.set(nodeKey, true);
                 // _ts.grid.set(node, 'type', 'close');
             }
         };
@@ -150,7 +154,7 @@ export class Astar {
      */
     getOpenListMin() {
         let data: Node | undefined;
-        this.openList.forEach((value, key) => {
+        this._openList.forEach((value, key) => {
             let point = keyToVector2(key) as Point,
                 node = this.grid.get(point);
             if (!data || node && node?.f < data.f) {
@@ -233,7 +237,7 @@ export class Astar {
             let item = around[i],
                 _xy: Point = this.getOffsetGrid(xy, item),
                 _xyKey = vector2ToKey(_xy),
-                isNotClose = !this.closeList.get(_xyKey);
+                isNotClose = !this._closeList.get(_xyKey);
             if (
                 _xy[0] >= 0 && _xy[0] < grid.col &&                                                 // 判断水平边界
                 _xy[1] >= 0 && _xy[1] < grid.row &&                                                 // 判断纵向边界
