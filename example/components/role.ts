@@ -17,7 +17,7 @@ export class Role extends PIXI.Container {
     const sprite1 = PIXI.Sprite.from(roleImg);
     sprite1.width = GRID_UNITY_WIDTH;
     sprite1.height = GRID_UNITY_WIDTH;
-    sprite1.anchor.set(0.5);
+    // sprite1.anchor.set(0.5);
     sprite1.position.set(0, 0);
     this.addChild(sprite1);
   }

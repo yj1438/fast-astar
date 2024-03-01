@@ -27,7 +27,11 @@ export class Node {
 
     type: NodeType = NodeType.NORMAL;
     parent: Node;
-    render: Function
+    
+    /**
+     * @override
+     */
+    // render: Function
 
     g: number = 0;
     h: number = 0;
@@ -50,11 +54,11 @@ export class Grid {
     row: number; // 行，即高
     data: Node[][];
 
-    constructor(obj: { col: number, row: number, render?: Function }) {
+    constructor(obj: { col: number, row: number, /*render?: Function */}) {
         const _ts = this;
         _ts.col = obj.col;      // 列，即宽
         _ts.row = obj.row;      // 行，即高
-        _ts.data = _ts.createGrid(obj.col, obj.row, obj.render);
+        _ts.data = _ts.createGrid(obj.col, obj.row, /* obj.render */);
     }
 
     /**
@@ -79,10 +83,12 @@ export class Grid {
             return;
         }
         node[key] = val;
-        typeof node.render === 'function' && node.render({
-            key: key,
-            val: val
-        });
+        // typeof node.render === 'function' && node.render.call(undefined, {
+        //     key: key,
+        //     val: val,
+        //     x: xy[0],
+        //     y: xy[1],
+        // });
     }
 
     /**
@@ -91,15 +97,19 @@ export class Grid {
      * @param {number} <必选> row 行，即高
      * @return {object} 网格地图对象
      */
-    createGrid(col: number, row: number, render?: Function) {
+    createGrid(col: number, row: number, /* render?: Function */) {
         let result: Array<Node[]> = [];
         for (let i = 0; i < row; i++) {
             let rowItems: Node[] = [];
             for (let j = 0; j < col; j++) {
                 let node = new Node(j, i);
-                if (typeof render === 'function') {
-                    node.render = render;
-                };
+                // if (typeof render === 'function') {
+                //     node.render = render;
+                //     render.call(undefined, {
+                //         x: j,
+                //         y: i,
+                //     });
+                // };
                 rowItems[j] = node;
             };
             result.push(rowItems);
@@ -113,23 +123,26 @@ export class Grid {
      * @param {number} scale <必选> 障碍物比例0-100
      * @param {number} type <必选> 障碍物类型，任意数字
      */
-    obstacle(scale: number, type: NodeType = NodeType.OBSTACLE) {
-        const _ts = this;
-        let amount: number = ~~(_ts.col * _ts.row * scale / 100),
+    obstacle(scale: number, type: NodeType = NodeType.OBSTACLE): Point[] {
+        scale = scale > 1 ? 1 : scale < 0 ? 0 : scale;
+        let amount: number = ~~(this.col * this.row * (scale)),
             xy: Point = [0, 0],
             maskMap;
+        const result: Point[] = [];
         for (let i = 0; i < amount; i++) {
             (maskMap = () => {
-                xy[0] = randomInt(0, _ts.col - 1);
-                xy[1] = randomInt(0, _ts.row - 1);
+                xy[0] = randomInt(0, this.col - 1);
+                xy[1] = randomInt(0, this.row - 1);
 
-                let item = _ts.get(xy);
+                let item = this.get(xy);
                 if (item && item.type === NodeType.NORMAL) {
                     item.type = type;
+                    result.push([xy[0], xy[1]]);
                 } else {
                     maskMap();
                 };
             })()
         };
+        return result;
     }
 }

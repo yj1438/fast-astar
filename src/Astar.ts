@@ -27,8 +27,23 @@ export class Astar {
     constructor(grid: Grid, option?: AstarOptions) {
         this.grid = grid;                                                                   // 保存传入地图网格
         this.searchOption = Object.assign({}, this.searchOption, option || {});
+    }
+
+    /**
+     * 
+     */
+    clean() {
         this._openList = new Map();                                                                   // 开启列表
-        this._closeList = new Map(); 
+        this._closeList = new Map();
+        // 清空所有节点的g、h、f、parent值
+        this.grid.data.forEach((row) => {
+            row.forEach((node) => {
+                node.g = 0;
+                node.h = 0;
+                node.f = Infinity;
+                node.parent = undefined;
+            });
+        });
     }
 
     /**
@@ -38,6 +53,8 @@ export class Astar {
      * @return {array}  返回寻找到的路径
      */
     search(start: Point, end: Point) {
+        this.clean();
+
         this.start = start; // 记录开始点
         this.end = end; // 记录结束点
 
@@ -68,7 +85,6 @@ export class Astar {
                 return;
             }
 
-            // node.open = 1; // custom property
             // 如果当前节点即结束节点，则说明找到终点
             if (node === endNode) {
                 isContinue = false;
@@ -98,7 +114,6 @@ export class Astar {
                         _node.h = h;
                         _node.f = f;
                         _node.parent = node;
-                        // _ts.grid.set(item, 'type', 'open');
                     }
                     // 如果已经在开启列表里了，则检查该条路径是否会更好
                     // 检查新的路径g值是否会更低，如果更低则把该相邻方格的你节点改为目前选中的方格并重新计算其g、f、h
@@ -108,7 +123,6 @@ export class Astar {
                             _node.h = h;
                             _node.f = f;
                             _node.parent = node;
-                            // _ts.grid.set(item, 'type', 'update');
                         };
                     };
                 };
@@ -116,7 +130,6 @@ export class Astar {
                 let nodeKey = vector2ToKey(p);
                 this._openList.delete(nodeKey);
                 this._closeList.set(nodeKey, true);
-                // _ts.grid.set(node, 'type', 'close');
             }
         };
 
