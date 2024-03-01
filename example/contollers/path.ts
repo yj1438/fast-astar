@@ -29,9 +29,6 @@ export class PathController {
   }
 
   draw(root: PIXI.Container) {
-    // astar
-    this.aStar = new Astar(new Grid({ row: 20, col: 10 }), { optimalResult: true, onlyRightAngle: false });
-
     //
     const grid = new GridEntity(this.app, { rows: 20, cols: 10, unitPixel: GRID_UNITY_WIDTH });
     root.addChild(grid);
@@ -51,12 +48,15 @@ export class PathController {
   }
 
   pathTo(data: GridPoint) {
+    // astar
+    this.aStar = new Astar(new Grid({ row: 20, col: 10 }), { optimalResult: true, onlyRightAngle: false });
+    const fromPoint = this._fromPoint;
+    const toPoint = data || this._toPoint;
     const pathArr = this.aStar.search(
-      [this._fromPoint.col, this._fromPoint.row],
-      [this._toPoint.col, this._toPoint.row], 
+      [fromPoint.col, fromPoint.row],
+      [toPoint.col, toPoint.row], 
     );
     console.log(pathArr);
-    
 
     if (this._currentPath) {
       for (let i = 0; i < this._currentPath.length; i++) {

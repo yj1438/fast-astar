@@ -27,6 +27,8 @@ export class Astar {
     constructor(grid: Grid, option?: AstarOptions) {
         this.grid = grid;                                                                   // 保存传入地图网格
         this.searchOption = Object.assign({}, this.searchOption, option || {});
+        this._openList = new Map();                                                                   // 开启列表
+        this._closeList = new Map(); 
     }
 
     /**
@@ -36,10 +38,6 @@ export class Astar {
      * @return {array}  返回寻找到的路径
      */
     search(start: Point, end: Point) {
-
-        this._openList = new Map();                                                                   // 开启列表
-        this._closeList = new Map(); 
-
         this.start = start; // 记录开始点
         this.end = end; // 记录结束点
 
@@ -208,21 +206,13 @@ export class Astar {
             b_isNoObstacle = isNoObstacle(xy, b);
 
         // 上右下左
-        l_isNoObstacle && around.push(l);
-        r_isNoObstacle && around.push(r);
         t_isNoObstacle && around.push(t);
+        r_isNoObstacle && around.push(r);
         b_isNoObstacle && around.push(b);
+        l_isNoObstacle && around.push(l);
 
         // 如果是可以斜角（非直角）则需要将交叉格子添加到四周检测列表中
         if (!searchOption.onlyRightAngle) {
-            // 左上
-            if (l_isNoObstacle && t_isNoObstacle) {
-                around.push(lt);
-            };
-            // 左下
-            if (l_isNoObstacle && b_isNoObstacle) {
-                around.push(lb);
-            };
             // 右上
             if (r_isNoObstacle && t_isNoObstacle) {
                 around.push(rt);
@@ -230,6 +220,14 @@ export class Astar {
             // 右下
             if (r_isNoObstacle && b_isNoObstacle) {
                 around.push(rb);
+            };
+            // 左下
+            if (l_isNoObstacle && b_isNoObstacle) {
+                around.push(lb);
+            };
+            // 左上
+            if (l_isNoObstacle && t_isNoObstacle) {
+                around.push(lt);
             };
         };
 
@@ -259,14 +257,14 @@ export class Astar {
     }
 
     /**
-     * 从start到指定网络的移动成本（垂直、水平返回1，斜角返回1.4）
+     * 从start到指定网络的移动成本（垂直、水平返回1，斜角返回1.414）
      * @param  {array} grid <必填>，子起点位置（[x,y]）
      * @param  {array} parent <必填>，父起点位置（[x,y]）
      * @return {number} 移动成本
      */
     g(point: Point, parent: Point) {
         return this.searchOption.optimalResult
-            ? (parent[0] === point[0] || parent[1] === point[1] ? 1 : 1.4) + (this.grid?.get(parent)?.g || 0)
+            ? (parent[0] === point[0] || parent[1] === point[1] ? 1 : 1.414) + (this.grid?.get(parent)?.g || 0)
             : 0;
     }
 
